@@ -17,6 +17,11 @@ async function fetchTypescriptGrammar(): Promise<IRawGrammar> {
   return await response.json();
 }
 
+async function fetchTheme(): Promise<any> {
+  const response = await fetch("/one-dark-pro.json");
+  return await response.json();
+}
+
 const sourceCode = `
 const x = 10;
 
@@ -34,16 +39,35 @@ export function Editor() {
       onigLib: fetchOniguruma(),
     });
 
-    // Lade die JavaScript-Grammatik
-    registry.loadGrammar("source.tsx").then(grammar => {
+    Promise.all([registry.loadGrammar("source.tsx"), fetchTheme()]).then(([grammar, theme]) => {
+      const colorMap: { [scope: string]: string } = {};
+
       if (grammar) {
+        // Mappe Scopes zu Farben
+        theme.tokenColors.forEach((setting: any) => {
+          if (setting.scope && setting.settings.foreground) {
+            const scopes = Array.isArray(setting.scope) ? setting.scope : setting.scope.split(",");
+            scopes.forEach((scope: any) => {
+              colorMap[scope.trim()] = setting.settings.foreground;
+            });
+          }
+        });
+
         let ruleStack = null;
         const lines = sourceCode.split("\n");
 
         // Tokenisiere jede Zeile
         for (const line of lines) {
           const result = grammar.tokenizeLine(line, ruleStack);
-          console.log(line, result.tokens);
+          const mappedTokens = result.tokens.map(token => {
+            const color = colorMap[token.scopes[token.scopes.length - 1]];
+            return {
+              start: token.startIndex,
+              end: token.endIndex,
+              color: color || "#FF00FF", // Fallback-Farbe
+            };
+          });
+          console.log(line, mappedTokens);
           ruleStack = result.ruleStack;
         }
       }
