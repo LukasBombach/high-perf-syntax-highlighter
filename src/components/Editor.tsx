@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { loadWASM, createOnigScanner, createOnigString } from "vscode-oniguruma";
 import { Registry } from "vscode-textmate";
 
-import type { IRawGrammar, IOnigLib, IRawTheme } from "vscode-textmate";
+import type { IRawGrammar, IGrammar, IOnigLib, IRawTheme } from "vscode-textmate";
+import type { Theme } from "../theme.type";
 
 async function fetchOniguruma(): Promise<IOnigLib> {
   return fetch("/onig.wasm")
@@ -17,9 +18,64 @@ async function fetchTypescriptGrammar(): Promise<IRawGrammar> {
   return await response.json();
 }
 
-async function fetchTheme(): Promise<any> {
+async function fetchTheme(): Promise<Theme> {
   const response = await fetch("/one-dark-pro.json");
   return await response.json();
+}
+
+interface TokenInfo {
+  start: number;
+  end: number;
+  scope: string;
+  color: string | undefined;
+}
+
+function findColorForScope(scope: string, colorMap: { [scope: string]: string }): string | undefined {
+  let parts = scope.split(".");
+  while (parts.length > 0) {
+    const currentScope = parts.join(".");
+    if (colorMap[currentScope]) {
+      return colorMap[currentScope];
+    }
+    parts.pop();
+  }
+  return undefined; // Fallback-Farbe als undefined
+}
+
+function tokenizeSourceCode(sourceCode: string, grammar: IGrammar, theme: Theme): TokenInfo[] {
+  const lines = sourceCode.split("\n");
+  let ruleStack = null;
+  const allTokens: TokenInfo[] = [];
+
+  // Erstelle Farbkarte aus dem Theme
+  const colorMap: { [scope: string]: string } = {};
+  theme.tokenColors.forEach(setting => {
+    if (setting.scope && setting.settings.foreground) {
+      const scopes = Array.isArray(setting.scope) ? setting.scope : setting.scope.split(",");
+      scopes.forEach(scope => {
+        colorMap[scope.trim()] = setting.settings.foreground;
+      });
+    }
+  });
+
+  // Tokenisiere jede Zeile
+  for (const line of lines) {
+    const result = grammar.tokenizeLine(line, ruleStack);
+    const mappedTokens = result.tokens.map(token => {
+      const lastScope = token.scopes[token.scopes.length - 1];
+      const color = findColorForScope(lastScope, colorMap);
+      return {
+        start: token.startIndex,
+        end: token.endIndex,
+        scope: lastScope,
+        color,
+      };
+    });
+    allTokens.push(...mappedTokens);
+    ruleStack = result.ruleStack;
+  }
+
+  return allTokens;
 }
 
 const sourceCode = `
@@ -30,8 +86,6 @@ function hello() {
 }`.trim();
 
 export function Editor() {
-  const [wasmModule, setWasmModule] = useState<any>(null);
-
   useEffect(() => {
     // Initialisiere das TextMate-Registry
     const registry = new Registry({
@@ -43,33 +97,9 @@ export function Editor() {
       const colorMap: { [scope: string]: string } = {};
 
       if (grammar) {
-        // Mappe Scopes zu Farben
-        theme.tokenColors.forEach((setting: any) => {
-          if (setting.scope && setting.settings.foreground) {
-            const scopes = Array.isArray(setting.scope) ? setting.scope : setting.scope.split(",");
-            scopes.forEach((scope: any) => {
-              colorMap[scope.trim()] = setting.settings.foreground;
-            });
-          }
-        });
+        const tokens = tokenizeSourceCode(sourceCode, grammar, theme);
 
-        let ruleStack = null;
-        const lines = sourceCode.split("\n");
-
-        // Tokenisiere jede Zeile
-        for (const line of lines) {
-          const result = grammar.tokenizeLine(line, ruleStack);
-          const mappedTokens = result.tokens.map(token => {
-            const color = colorMap[token.scopes[token.scopes.length - 1]];
-            return {
-              start: token.startIndex,
-              end: token.endIndex,
-              color: color || "#FF00FF", // Fallback-Farbe
-            };
-          });
-          console.log(line, mappedTokens);
-          ruleStack = result.ruleStack;
-        }
+        console.log(tokens);
       }
     });
   }, []);
