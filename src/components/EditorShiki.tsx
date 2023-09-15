@@ -66,10 +66,8 @@ function useHighlighter() {
 function useHighlightingBackgroundImage(
   highlighter: Highlighter | null,
   sourceCode: string
-): [img: string, width: number, height: number] {
-  const [backgroundImage, setBackgroundImage] = useState("");
-  const [width, setWidth] = useState(0);
-  const [height, setHeight] = useState(0);
+): [base64: string, width: number, height: number] {
+  const [image, setImage] = useState<[base64: string, width: number, height: number]>(["", 0, 0]);
 
   useEffect(() => {
     if (!highlighter) return;
@@ -82,13 +80,10 @@ function useHighlightingBackgroundImage(
     const width = Math.max(...colors.map(row => row.length));
     const base64 = createBMP(colors);
 
-    setBackgroundImage(base64);
-    setWidth(width);
-    setHeight(height);
-    console.debug(`Caclulated background image ${width}x${height} ${base64.substring(0, 19)}…`);
+    setImage([base64, width, height]);
   }, [highlighter, sourceCode]);
 
-  return [backgroundImage, width, height];
+  return image;
 }
 
 export function Editor() {
