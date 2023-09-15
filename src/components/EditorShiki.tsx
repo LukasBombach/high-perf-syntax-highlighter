@@ -6,7 +6,7 @@ import { encode } from "bmp-js";
 
 setCDN("/_next/static/shiki/");
 
-const FALLBACK_COLOR = "#FFFFFF";
+const FALLBACK_COLOR = "#000000";
 
 function createBMP(array: string[][]): string {
   const height = array.length;
@@ -23,9 +23,8 @@ function createBMP(array: string[][]): string {
       const b = parseInt(color.substring(5, 7), 16);
       const a = 255;
 
-      console.log(color, r, g, b);
-
-      buffer[offset] = r;
+      // ABGR
+      buffer[offset] = a;
       buffer[offset + 1] = b;
       buffer[offset + 2] = g;
       buffer[offset + 3] = r;
@@ -58,7 +57,7 @@ export function Editor() {
   // highlight the source code
   useEffect(() => {
     getHighlighter({
-      theme: "nord",
+      theme: "one-dark-pro",
     }).then(highlighter => {
       const colors = highlighter
         .codeToThemedTokens(sourceCode, "js")
@@ -79,7 +78,7 @@ export function Editor() {
 
   return (
     <textarea
-      className="w-full h-full outline-none caret-black font-mono "
+      className="w-full h-full outline-none caret-black font-mono bg-clip-text text-transparent"
       // bg-clip-text text-transparent
       defaultValue={sourceCode}
       ref={ref}
