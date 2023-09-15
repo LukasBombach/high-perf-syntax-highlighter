@@ -67,6 +67,8 @@ export function Editor() {
       const height = colors.length;
       const width = Math.max(...colors.map(row => row.length));
       const base64 = createBMP(colors);
+
+      console.log(highlighter.getBackgroundColor());
       console.log(colors);
       console.log(base64);
       ref.current!.style.backgroundImage = `url(data:image/bmp;base64,${base64})`;
@@ -79,7 +81,6 @@ export function Editor() {
   return (
     <textarea
       className="w-full h-full outline-none caret-black font-mono bg-clip-text text-transparent"
-      // bg-clip-text text-transparent
       defaultValue={sourceCode}
       ref={ref}
     />
