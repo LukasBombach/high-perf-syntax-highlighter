@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { getHighlighter, setCDN } from "shiki";
+import { useEffect, useRef, useState } from "react";
+import { type Highlighter, getHighlighter, setCDN } from "shiki";
 import { encode } from "bmp-js";
 
 setCDN("/_next/static/shiki/");
@@ -50,38 +50,63 @@ function hello() {
   console.log("Hello, world!", x);
 }`.trim();
 
+function useHighlighter() {
+  const [highlighter, setHighlighter] = useState<Highlighter | null>(null);
+
+  useEffect(() => {
+    if (highlighter) return;
+    getHighlighter({ theme: "one-dark-pro" })
+      .then(setHighlighter)
+      .then(() => console.debug("Highlighter loaded"));
+  }, [highlighter]);
+
+  return highlighter;
+}
+
+function useHighlightingBackgroundImage(
+  highlighter: Highlighter | null,
+  sourceCode: string
+): [img: string, width: number, height: number] {
+  const [backgroundImage, setBackgroundImage] = useState("");
+  const [width, setWidth] = useState(0);
+  const [height, setHeight] = useState(0);
+
+  useEffect(() => {
+    if (!highlighter) return;
+    const colors = highlighter
+      .codeToThemedTokens(sourceCode, "js")
+      .map(line =>
+        line.flatMap(token => new Array(token.content.length).fill((token.color || FALLBACK_COLOR).substring(0, 7)))
+      );
+    const height = colors.length;
+    const width = Math.max(...colors.map(row => row.length));
+    const base64 = createBMP(colors);
+
+    setBackgroundImage(base64);
+    setWidth(width);
+    setHeight(height);
+    console.debug(`Caclulated background image ${width}x${height} ${base64.substring(0, 19)}…`);
+  }, [highlighter, sourceCode]);
+
+  return [backgroundImage, width, height];
+}
+
 export function Editor() {
-  // ref to the textarea
+  const [code, setCode] = useState(sourceCode);
+  const highlighter = useHighlighter();
+  const [bg, width, height] = useHighlightingBackgroundImage(highlighter, code);
   const ref = useRef<HTMLTextAreaElement>(null);
 
-  // highlight the source code
-  useEffect(() => {
-    getHighlighter({
-      theme: "one-dark-pro",
-    }).then(highlighter => {
-      const colors = highlighter
-        .codeToThemedTokens(sourceCode, "js")
-        .map(line =>
-          line.flatMap(token => new Array(token.content.length).fill((token.color || FALLBACK_COLOR).substring(0, 7)))
-        );
-      const height = colors.length;
-      const width = Math.max(...colors.map(row => row.length));
-      const base64 = createBMP(colors);
-
-      console.log(highlighter.getBackgroundColor());
-      console.log(colors);
-      console.log(base64);
-      ref.current!.style.backgroundImage = `url(data:image/bmp;base64,${base64})`;
-      ref.current!.style.backgroundSize = `${width}ch ${height * 1.5}em`;
-      ref.current!.style.backgroundRepeat = `no-repeat`;
-      ref.current!.style.imageRendering = `pixelated`;
-    });
-  }, []);
+  if (ref.current && bg) {
+    ref.current.style.backgroundImage = `url(data:image/bmp;base64,${bg})`;
+    ref.current.style.backgroundSize = `${width}ch ${height * 1.5}em`;
+  }
 
   return (
     <textarea
-      className="w-full h-full outline-none caret-black font-mono bg-clip-text text-transparent"
-      defaultValue={sourceCode}
+      className="w-full h-full outline-none caret-white font-mono bg-no-repeat [image-rendering:pixelated] bg-clip-text text-transparent"
+      value={code}
+      onChange={e => setCode(e.target.value)}
       ref={ref}
     />
   );
