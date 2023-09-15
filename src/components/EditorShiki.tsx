@@ -105,10 +105,12 @@ export function Editor() {
 
   return (
     <textarea
+      // [contain:strict] transform-gpu
       className="bg-[image:var(--bg-base64)] bg-[size:var(--bg-size)] w-full h-full outline-none caret-white font-mono bg-no-repeat bg-clip-text text-transparent [image-rendering:pixelated]"
       value={code}
       onChange={e => setCode(e.target.value)}
       ref={ref}
+      spellCheck={false}
     />
   );
 }
