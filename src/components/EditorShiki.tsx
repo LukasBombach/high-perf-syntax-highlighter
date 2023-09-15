@@ -134,7 +134,7 @@ export function Editor() {
   const ref = useRef<HTMLTextAreaElement>(null);
   const highlighter = useHighlighter();
   /* const [bg, width, height] = */
-  useHighlightingBackgroundImage(highlighter, code, ref);
+  // useHighlightingBackgroundImage(highlighter, code, ref);
 
   /* if (ref.current && bg) {
     ref.current.style.setProperty("--bg-base64", `url(data:image/bmp;base64,${bg})`);
@@ -154,12 +154,50 @@ export function Editor() {
     return () => clearInterval(r);
   }, []); */
 
+  const image = useRef<{ base64: string; width: number; height: number; dirty: boolean }>({
+    base64: "",
+    width: 0,
+    height: 0,
+    dirty: false,
+  });
+
+  const foo = useRef(0);
+
   return (
     <textarea
       // [contain:strict] transform-gpu
       className="bg-[image:var(--bg-base64)] bg-[size:var(--bg-size)] w-full h-full outline-none caret-white font-mono bg-no-repeat bg-clip-text text-transparent [image-rendering:pixelated]"
       value={code}
-      onChange={e => setCode(e.target.value)}
+      onChange={e => {
+        setCode(e.target.value);
+
+        if (foo.current++ % 2 === 0) {
+          ref.current!.style.setProperty("--bg-base64", img1);
+        } else {
+          ref.current!.style.setProperty("--bg-base64", img2);
+        }
+
+        // if (!highlighter) return;
+        // const colors = highlighter
+        //   .codeToThemedTokens(e.target.value, "js")
+        //   .map(line =>
+        //     line.flatMap(token => new Array(token.content.length).fill((token.color || FALLBACK_COLOR).substring(0, 7)))
+        //   );
+
+        //  // const height = colors.length;
+        // const width = Math.max(...colors.map(row => row.length));
+        // const base64 = createPng(colors);
+
+        //  // image.current = { base64, width, height, dirty: true };
+
+        //  // //requestAnimationFrame(() => {
+        // //if (image.current.dirty) {
+        // image.current.dirty = false;
+        // ref.current!.style.setProperty("--bg-base64", `url(${base64})`);
+        // ref.current!.style.setProperty("--bg-size", `${width}ch ${height * 1.5}em`);
+        // //}
+        // //});
+      }}
       ref={ref}
       spellCheck={false}
     />
