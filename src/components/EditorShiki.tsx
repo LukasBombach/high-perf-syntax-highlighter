@@ -112,7 +112,7 @@ function useHighlightingBackgroundImage(
 
     // setImage([base64, width, height]);
 
-    queueMicrotask(() => {
+    requestAnimationFrame(() => {
       if (ref.current) {
         ref.current.style.setProperty("--bg-base64", `url(${base64})`);
         ref.current.style.setProperty("--bg-size", `${width}ch ${height * 1.5}em`);
