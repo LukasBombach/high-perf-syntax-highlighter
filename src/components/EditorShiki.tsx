@@ -96,6 +96,12 @@ function useHighlightingBackgroundImage(
   ref: RefObject<HTMLTextAreaElement>
 ) /* : [base64: string, width: number, height: number] */ {
   // const [image, setImage] = useState<[base64: string, width: number, height: number]>(["", 0, 0]);
+  const image = useRef<{ base64: string; width: number; height: number; dirty: boolean }>({
+    base64: "",
+    width: 0,
+    height: 0,
+    dirty: false,
+  });
 
   useEffect(() => {
     if (!highlighter) return;
@@ -104,18 +110,18 @@ function useHighlightingBackgroundImage(
       .map(line =>
         line.flatMap(token => new Array(token.content.length).fill((token.color || FALLBACK_COLOR).substring(0, 7)))
       );
+
     const height = colors.length;
     const width = Math.max(...colors.map(row => row.length));
     const base64 = createPng(colors);
 
-    // console.log("base64", base64);
-
-    // setImage([base64, width, height]);
+    image.current = { base64, width, height, dirty: true };
 
     requestAnimationFrame(() => {
-      if (ref.current) {
-        ref.current.style.setProperty("--bg-base64", `url(${base64})`);
-        ref.current.style.setProperty("--bg-size", `${width}ch ${height * 1.5}em`);
+      if (image.current.dirty) {
+        image.current.dirty = false;
+        ref.current!.style.setProperty("--bg-base64", `url(${base64})`);
+        ref.current!.style.setProperty("--bg-size", `${width}ch ${height * 1.5}em`);
       }
     });
   }, [highlighter, sourceCode, ref]);
