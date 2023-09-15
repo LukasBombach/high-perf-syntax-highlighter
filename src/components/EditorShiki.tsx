@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { type Highlighter, getHighlighter, setCDN } from "shiki";
+import { useEffect, useRef, useState, type RefObject } from "react";
+import { getHighlighter, setCDN, type Highlighter } from "shiki";
 import { encode } from "bmp-js";
 
 setCDN("/_next/static/shiki/");
@@ -65,9 +65,10 @@ function useHighlighter() {
 
 function useHighlightingBackgroundImage(
   highlighter: Highlighter | null,
-  sourceCode: string
-): [base64: string, width: number, height: number] {
-  const [image, setImage] = useState<[base64: string, width: number, height: number]>(["", 0, 0]);
+  sourceCode: string,
+  ref: RefObject<HTMLTextAreaElement>
+) /* : [base64: string, width: number, height: number] */ {
+  // const [image, setImage] = useState<[base64: string, width: number, height: number]>(["", 0, 0]);
 
   useEffect(() => {
     if (!highlighter) return;
@@ -80,26 +81,31 @@ function useHighlightingBackgroundImage(
     const width = Math.max(...colors.map(row => row.length));
     const base64 = createBMP(colors);
 
-    setImage([base64, width, height]);
-  }, [highlighter, sourceCode]);
+    // setImage([base64, width, height]);
 
-  return image;
+    if (ref.current) {
+      ref.current.style.setProperty("--bg-base64", `url(data:image/bmp;base64,${base64})`);
+      ref.current.style.setProperty("--bg-size", `${width}ch ${height * 1.5}em`);
+    }
+  }, [highlighter, sourceCode, ref]);
+
+  // return image;
 }
 
 export function Editor() {
   const [code, setCode] = useState(sourceCode);
-  const highlighter = useHighlighter();
-  const [bg, width, height] = useHighlightingBackgroundImage(highlighter, code);
   const ref = useRef<HTMLTextAreaElement>(null);
+  const highlighter = useHighlighter();
+  /* const [bg, width, height] = */ useHighlightingBackgroundImage(highlighter, code, ref);
 
-  if (ref.current && bg) {
-    ref.current.style.backgroundImage = `url(data:image/bmp;base64,${bg})`;
-    ref.current.style.backgroundSize = `${width}ch ${height * 1.5}em`;
-  }
+  /* if (ref.current && bg) {
+    ref.current.style.setProperty("--bg-base64", `url(data:image/bmp;base64,${bg})`);
+    ref.current.style.setProperty("--bg-size", `${width}ch ${height * 1.5}em`);
+  } */
 
   return (
     <textarea
-      className="w-full h-full outline-none caret-white font-mono bg-no-repeat [image-rendering:pixelated] bg-clip-text text-transparent"
+      className="bg-[image:var(--bg-base64)] bg-[size:var(--bg-size)] w-full h-full outline-none caret-white font-mono bg-no-repeat bg-clip-text text-transparent [image-rendering:pixelated]"
       value={code}
       onChange={e => setCode(e.target.value)}
       ref={ref}
