@@ -1,4 +1,4 @@
-import Prism, { type Token } from "prismjs";
+import Prism from "prismjs";
 import "prismjs/components/prism-javascript";
 import "./style.css";
 
@@ -43,10 +43,9 @@ const theme = new Map([
 
 const canvas = document.createElement("canvas");
 //canvas.style.visibility = "hidden";
+canvas.style.contain = "strict"; // for performance
 document.body.appendChild(canvas);
 const ctx = canvas.getContext("2d");
-if (!ctx) throw new Error("No context");
-
 const javascript = Prism.languages["javascript"];
 
 /**
@@ -66,6 +65,8 @@ type Token = [length: number, color: string];
 type Line = Token[];
 
 function setBgImage(editor: HTMLTextAreaElement) {
+  if (!ctx) throw new Error("No context");
+
   const value = editor.value;
   const tokens = Prism.tokenize(value, javascript);
   const lines: Line[] = [];
@@ -73,7 +74,7 @@ function setBgImage(editor: HTMLTextAreaElement) {
   let currentLine: Line = [];
   lines.push(currentLine);
 
-  function pushTokens(tokens: ReturnType<typeof Prism.tokenize>) {
+  (function pushTokens(tokens: ReturnType<typeof Prism.tokenize>) {
     tokens.forEach(token => {
       if (typeof token === "string") {
         const splitLines = token.split("\n");
@@ -90,53 +91,25 @@ function setBgImage(editor: HTMLTextAreaElement) {
         currentLine.push([token.length, theme.get(token.type) ?? "#FF00FF"]);
       }
     });
-  }
+  })(tokens);
 
-  pushTokens(tokens);
+  const width = Math.max(...lines.map(row => row.reduce((acc, [length]) => acc + length, 0)));
+  const height = lines.length;
 
-  console.log(lines);
-}
-
-/**
- * Color Magic
- */
-/* function getPixels(lines: [length: number, color: string][]) {
-  canvas.width = Math.max(...lines.map(row => row.length));
-  canvas.height = lines.length;
+  canvas.width = width;
+  canvas.height = height;
 
   for (let y = 0; y < lines.length; ++y) {
-    for (let x = 0; x < lines[y].length; ++x) {
-      for (let z = 0; z < (lines[y][x][0] as number); ++z) {
-        ctx!.fillStyle = lines[y][x][1] as string;
-        ctx!.fillRect(x, y, 1, 1);
-      }
+    let x = 0;
+    for (const [length, color] of lines[y]) {
+      ctx.fillStyle = color;
+      ctx.fillRect(x, y, length, 1);
+      x += length;
     }
   }
 
-  return canvas.toDataURL("image/png");
-} */
-
-/* function getColor(token: string | Token): [length: number, color: string, content: string][] {
-  if (typeof token === "string") {
-    return [[token.length, theme.get("string") || "#FF00FF", token]];
-  }
-
-  if (typeof token.content === "string") {
-    return [[token.length, theme.get(token.type) || "#FF00FF", token.content]];
-  }
-
-  if (!theme.has(token.type)) {
-    if (Array.isArray(token.content)) {
-      return token.content.flatMap(getColor);
-    } else {
-      console.warn("missing", token.type, token.content);
-    }
-  }
-
-  throw new Error("?");
-} */
-
-/* function getColors(source: string) {
-  const language = "javascript";
-  return Prism.tokenize(source, Prism.languages[language]).flatMap(getColor);
-} */
+  requestAnimationFrame(() => {
+    editor.style.backgroundImage = `url(${canvas.toDataURL()})`;
+    editor.style.backgroundSize = `${width}ch ${height * 1.5}em`;
+  });
+}
