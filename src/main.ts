@@ -2,9 +2,9 @@ import Prism from "prismjs";
 import "prismjs/components/prism-javascript";
 import "./style.css";
 
-/**
- * Init code
- */
+type Token = [length: number, color: string];
+type Line = Token[];
+
 const code = `function add(a, b) {
   return a + b;
 }
@@ -43,21 +43,17 @@ const theme = new Map([
 
 const img = new Image();
 const canvas = document.createElement("canvas");
-const ctx = canvas.getContext("2d");
+const ctx = canvas.getContext("2d")!;
 const javascript = Prism.languages["javascript"];
 
-/**
- * Editor Binding
- */
-const editor = document.querySelector<HTMLTextAreaElement>("#editor");
-if (!editor) throw new Error("Could not find editor");
-editor.textContent = code;
-
-let isRunning = false;
+const fpsInterval = 1000 / 30;
 let lastTime = 0;
+let isSetting = false;
 let backgroundImage: string;
 let backgroundSize: string;
-const fpsInterval = 1000 / 30; // 30 FPS
+
+const editor = document.querySelector<HTMLTextAreaElement>("#editor")!;
+editor.textContent = code;
 
 setBgImage(editor);
 
@@ -67,17 +63,13 @@ editor.addEventListener("input", function (event) {
   });
 });
 
-type Token = [length: number, color: string];
-type Line = Token[];
-
 function setBgImage(editor: HTMLTextAreaElement) {
-  if (!ctx) throw new Error("No context");
-
   const now = Date.now();
   const elapsed = now - lastTime;
 
-  if (isRunning || elapsed < fpsInterval) return;
-  isRunning = true;
+  if (isSetting || elapsed < fpsInterval) return;
+
+  isSetting = true;
   lastTime = now - (elapsed % fpsInterval);
 
   const value = editor.value;
@@ -120,6 +112,7 @@ function setBgImage(editor: HTMLTextAreaElement) {
       x += length;
     }
   }
+
   backgroundImage = canvas.toDataURL();
   backgroundSize = `${width}ch ${height * 1.5}em`;
 
@@ -133,6 +126,6 @@ img.onload = function () {
   requestAnimationFrame(() => {
     editor.style.backgroundImage = "url(" + backgroundImage + ")";
     editor.style.backgroundSize = backgroundSize;
-    isRunning = false;
+    isSetting = false;
   });
 };
