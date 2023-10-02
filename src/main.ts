@@ -55,10 +55,18 @@ const editor = document.querySelector<HTMLTextAreaElement>("#editor");
 if (!editor) throw new Error("Could not find editor");
 editor.textContent = code;
 
+let isRunning = false;
+let lastTime = 0;
+let backgroundImage: string;
+let backgroundSize: string;
+const fpsInterval = 1000 / 30; // 30 FPS
+
 setBgImage(editor);
 
 editor.addEventListener("input", function (event) {
-  setBgImage(event.target as HTMLTextAreaElement);
+  queueMicrotask(() => {
+    setBgImage(event.target as HTMLTextAreaElement);
+  });
 });
 
 type Token = [length: number, color: string];
@@ -66,6 +74,13 @@ type Line = Token[];
 
 function setBgImage(editor: HTMLTextAreaElement) {
   if (!ctx) throw new Error("No context");
+
+  const now = Date.now();
+  const elapsed = now - lastTime;
+
+  if (isRunning || elapsed < fpsInterval) return;
+  isRunning = true;
+  lastTime = now - (elapsed % fpsInterval);
 
   const value = editor.value;
   const tokens = Prism.tokenize(value, javascript);
@@ -107,9 +122,12 @@ function setBgImage(editor: HTMLTextAreaElement) {
       x += length;
     }
   }
+  backgroundImage = `url(${canvas.toDataURL()})`;
+  backgroundSize = `${width}ch ${height * 1.5}em`;
 
   requestAnimationFrame(() => {
-    editor.style.backgroundImage = `url(${canvas.toDataURL()})`;
-    editor.style.backgroundSize = `${width}ch ${height * 1.5}em`;
+    editor.style.backgroundImage = backgroundImage;
+    editor.style.backgroundSize = backgroundSize;
+    isRunning = false;
   });
 }
