@@ -41,12 +41,8 @@ const theme = new Map([
   ["variable", "#c678dd"],
 ]);
 
-const canvas = document.createElement("canvas");
 const img = new Image();
-canvas.style.visibility = "hidden";
-canvas.style.contain = "strict"; // for performance
-document.body.appendChild(canvas);
-document.body.appendChild(img);
+const canvas = document.createElement("canvas");
 const ctx = canvas.getContext("2d");
 const javascript = Prism.languages["javascript"];
 
@@ -124,7 +120,7 @@ function setBgImage(editor: HTMLTextAreaElement) {
       x += length;
     }
   }
-  backgroundImage = canvas.toDataURL(); //`url(${canvas.toDataURL()})`;
+  backgroundImage = canvas.toDataURL();
   backgroundSize = `${width}ch ${height * 1.5}em`;
 
   img.src = backgroundImage;
