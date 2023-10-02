@@ -46,9 +46,6 @@ const canvas = document.createElement("canvas");
 const ctx = canvas.getContext("2d")!;
 const javascript = Prism.languages["javascript"];
 
-const fpsInterval = 1000 / 30;
-let lastTime = 0;
-let isSetting = false;
 let backgroundImage: string;
 let backgroundSize: string;
 
@@ -64,14 +61,6 @@ editor.addEventListener("input", function (event) {
 });
 
 function setBgImage(editor: HTMLTextAreaElement) {
-  const now = Date.now();
-  const elapsed = now - lastTime;
-
-  if (isSetting || elapsed < fpsInterval) return;
-
-  isSetting = true;
-  lastTime = now - (elapsed % fpsInterval);
-
   const value = editor.value;
   const tokens = Prism.tokenize(value, javascript);
   const lines: Line[] = [];
@@ -117,15 +106,11 @@ function setBgImage(editor: HTMLTextAreaElement) {
   backgroundSize = `${width}ch ${height * 1.5}em`;
 
   img.src = backgroundImage;
-
-  //todo
-  // isRunning = false;
 }
 
 img.onload = function () {
   requestAnimationFrame(() => {
     editor.style.backgroundImage = "url(" + backgroundImage + ")";
     editor.style.backgroundSize = backgroundSize;
-    isSetting = false;
   });
 };
