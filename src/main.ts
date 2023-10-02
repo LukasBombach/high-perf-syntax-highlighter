@@ -42,9 +42,11 @@ const theme = new Map([
 ]);
 
 const canvas = document.createElement("canvas");
-//canvas.style.visibility = "hidden";
+const img = new Image();
+canvas.style.visibility = "hidden";
 canvas.style.contain = "strict"; // for performance
 document.body.appendChild(canvas);
+document.body.appendChild(img);
 const ctx = canvas.getContext("2d");
 const javascript = Prism.languages["javascript"];
 
@@ -122,12 +124,19 @@ function setBgImage(editor: HTMLTextAreaElement) {
       x += length;
     }
   }
-  backgroundImage = `url(${canvas.toDataURL()})`;
+  backgroundImage = canvas.toDataURL(); //`url(${canvas.toDataURL()})`;
   backgroundSize = `${width}ch ${height * 1.5}em`;
 
+  img.src = backgroundImage;
+
+  //todo
+  // isRunning = false;
+}
+
+img.onload = function () {
   requestAnimationFrame(() => {
-    editor.style.backgroundImage = backgroundImage;
+    editor.style.backgroundImage = "url(" + backgroundImage + ")";
     editor.style.backgroundSize = backgroundSize;
     isRunning = false;
   });
-}
+};
