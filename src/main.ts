@@ -5,12 +5,6 @@ import "./style.css";
 type Token = [length: number, color: string];
 type Line = Token[];
 
-const code = `function add(a, b) {
-  return a + b;
-}
-
-const x = add(1, 2);`;
-
 const theme = new Map([
   ["atrule", "#c678dd"],
   ["attr-value", "#98c379"],
@@ -46,23 +40,50 @@ const canvas = document.createElement("canvas");
 const ctx = canvas.getContext("2d")!;
 const javascript = Prism.languages["javascript"];
 
-let backgroundImage: string;
-let backgroundSize: string;
-
 const editor = document.querySelector<HTMLTextAreaElement>("#editor")!;
-editor.textContent = code;
 
-setBgImage(editor);
+updateBgImage(editor);
 
-editor.addEventListener("input", function (event) {
-  queueMicrotask(() => {
-    setBgImage(event.target as HTMLTextAreaElement);
-  });
+editor.addEventListener("input", () => {
+  queueMicrotask(() => updateBgImage(editor));
 });
 
-function setBgImage(editor: HTMLTextAreaElement) {
-  const value = editor.value;
-  const tokens = Prism.tokenize(value, javascript);
+function updateBgImage(editor: HTMLTextAreaElement) {
+  const { image, size } = getBgImage(editor);
+
+  img.addEventListener("load", () => {
+    requestAnimationFrame(() => {
+      editor.style.backgroundImage = "url(" + image + ")";
+      editor.style.backgroundSize = size;
+    });
+  });
+
+  img.src = image;
+}
+
+function getBgImage(editor: HTMLTextAreaElement) {
+  const { lines, width, height } = getTokens(editor.value);
+
+  canvas.width = width;
+  canvas.height = height;
+
+  for (let y = 0; y < lines.length; ++y) {
+    let x = 0;
+    for (const [length, color] of lines[y]) {
+      ctx.fillStyle = color;
+      ctx.fillRect(x, y, length, 1);
+      x += length;
+    }
+  }
+
+  const image = canvas.toDataURL();
+  const size = `${width}ch ${height * 1.5}em`;
+
+  return { image, size };
+}
+
+function getTokens(sourcecode: string): { lines: Line[]; width: number; height: number } {
+  const tokens = Prism.tokenize(sourcecode, javascript);
   const lines: Line[] = [];
 
   let currentLine: Line = [];
@@ -90,27 +111,5 @@ function setBgImage(editor: HTMLTextAreaElement) {
   const width = Math.max(...lines.map(row => row.reduce((acc, [length]) => acc + length, 0)));
   const height = lines.length;
 
-  canvas.width = width;
-  canvas.height = height;
-
-  for (let y = 0; y < lines.length; ++y) {
-    let x = 0;
-    for (const [length, color] of lines[y]) {
-      ctx.fillStyle = color;
-      ctx.fillRect(x, y, length, 1);
-      x += length;
-    }
-  }
-
-  backgroundImage = canvas.toDataURL();
-  backgroundSize = `${width}ch ${height * 1.5}em`;
-
-  img.src = backgroundImage;
+  return { lines, width, height };
 }
-
-img.onload = function () {
-  requestAnimationFrame(() => {
-    editor.style.backgroundImage = "url(" + backgroundImage + ")";
-    editor.style.backgroundSize = backgroundSize;
-  });
-};
