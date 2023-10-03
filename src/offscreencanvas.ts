@@ -1,17 +1,12 @@
 import Prism from "prismjs";
-// import MyWorker from "./worker?worker";
-import OffscreenCanvasWorker from "./offscreencanvas?worker";
 import "prismjs/components/prism-javascript";
-import "./style.css";
 
-/**
- * Init code
- */
-const code = `function add(a, b) {
-  return a + b;
-}
+type Token = [length: number, color: string];
+type Line = Token[];
 
-const x = add(1, 2);`;
+const javascript = Prism.languages["javascript"];
+let canvas: HTMLCanvasElement | null = null;
+let ctx: CanvasRenderingContext2D | null = null;
 
 const theme = new Map([
   ["atrule", "#c678dd"],
@@ -43,51 +38,23 @@ const theme = new Map([
   ["variable", "#c678dd"],
 ]);
 
-const canvas = document.createElement("canvas");
-const offscreen = canvas.transferControlToOffscreen();
-canvas.id = "bg-canvas";
-document.body.appendChild(canvas);
-//canvas.style.visibility = "hidden";
-// canvas.style.contain = "strict"; // for performance
-// const ctx = canvas.getContext("2d");
-const javascript = Prism.languages["javascript"];
-
-/* const worker = new MyWorker();
-worker.onmessage = e => {
-  console.log("Message received from worker", e.data);
-};
-worker.postMessage(code); */
-
-const worker = new OffscreenCanvasWorker();
-worker.postMessage({ canvas: offscreen }, [offscreen]);
-
-/**
- * Editor Binding
- */
-const editor = document.querySelector<HTMLTextAreaElement>("#editor");
-if (!editor) throw new Error("Could not find editor");
-editor.textContent = code;
-worker.postMessage({ code: editor.value });
-
-editor.style.backgroundImage = "-webkit-canvas(bg-canvas)";
-
-editor.addEventListener("input", function (event) {
-  worker.postMessage({ code: (event.target as HTMLTextAreaElement).value });
-});
-
-worker.onmessage = e => {
-  // editor.style.backgroundImage = e.data.backgroundImage;
-  editor.style.backgroundSize = e.data.backgroundSize;
+onmessage = evt => {
+  if (typeof evt.data.code === "string") {
+    pixels(evt.data.code);
+  } else if (evt.data.canvas) {
+    canvas = evt.data.canvas as HTMLCanvasElement;
+    ctx = canvas.getContext("2d");
+  }
 };
 
-// type Token = [length: number, color: string];
-//  type Line = Token[];
-
-/* function setBgImage(editor: HTMLTextAreaElement) {
+function pixels(code: string) {
+  if (!canvas) throw new Error("No canvas");
   if (!ctx) throw new Error("No context");
 
-  const value = editor.value;
-  const tokens = Prism.tokenize(value, javascript);
+  console.log("pixels");
+  console.log(code);
+
+  const tokens = Prism.tokenize(code, javascript);
   const lines: Line[] = [];
 
   let currentLine: Line = [];
@@ -127,9 +94,13 @@ worker.onmessage = e => {
     }
   }
 
-  requestAnimationFrame(() => {
-    editor.style.backgroundImage = `url(${canvas.toDataURL()})`;
-    editor.style.backgroundSize = `${width}ch ${height * 1.5}em`;
+  postMessage({
+    //backgroundImage: `url(${canvas.toDataURL()})`,
+    backgroundSize: `${width}ch ${height * 1.5}em`,
   });
+
+  /* requestAnimationFrame(() => {
+    editor.style.backgroundImage =;
+    editor.style.backgroundSize = ;
+  }); */
 }
- */
