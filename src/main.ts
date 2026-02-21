@@ -73,8 +73,8 @@ function updateBgImage(editor: HTMLTextAreaElement) {
 function getBgImage(editor: HTMLTextAreaElement) {
   const { lines, width, height } = getTokens(editor.value);
 
-  canvas.width = width;
-  canvas.height = height;
+  if (canvas.width !== width) canvas.width = width;
+  if (canvas.height !== height) canvas.height = height;
 
   const imageData = ctx.createImageData(width, height);
   const buf = imageData.data;
