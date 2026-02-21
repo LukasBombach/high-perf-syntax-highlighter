@@ -42,6 +42,13 @@ const javascript = Prism.languages["javascript"];
 
 const editor = document.querySelector<HTMLTextAreaElement>("#editor")!;
 
+img.addEventListener("load", () => {
+  requestAnimationFrame(() => {
+    editor.style.backgroundImage = "url(" + img.src + ")";
+    editor.style.backgroundSize = img.dataset.size!;
+  });
+});
+
 updateBgImage(editor);
 
 editor.addEventListener("input", () => {
@@ -50,14 +57,7 @@ editor.addEventListener("input", () => {
 
 function updateBgImage(editor: HTMLTextAreaElement) {
   const { image, size } = getBgImage(editor);
-
-  img.addEventListener("load", () => {
-    requestAnimationFrame(() => {
-      editor.style.backgroundImage = "url(" + image + ")";
-      editor.style.backgroundSize = size;
-    });
-  });
-
+  img.dataset.size = size;
   img.src = image;
 }
 
