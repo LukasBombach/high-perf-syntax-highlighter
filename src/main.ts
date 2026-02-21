@@ -33,6 +33,7 @@ const theme = new Map([
   ["tag", "#e06c75"],
   ["url", "#56b6c2"],
   ["variable", "#c678dd"],
+  ["default", "#abb2bf"],
 ]);
 
 const img = new Image();
@@ -95,11 +96,11 @@ function getTokens(sourcecode: string): { lines: Line[]; width: number; height: 
         const splitLines = token.split("\n");
 
         for (let i = 0; i < splitLines.length - 1; i++) {
-          currentLine.push([splitLines[i].length, theme.get("string") ?? "#FF00FF"]);
+          currentLine.push([splitLines[i].length, theme.get("default")!]);
           currentLine = [];
           lines.push(currentLine);
         }
-        currentLine.push([splitLines[splitLines.length - 1].length, theme.get("string") ?? "#FF00FF"]);
+        currentLine.push([splitLines[splitLines.length - 1].length, theme.get("default")!]);
       } else if (Array.isArray(token)) {
         pushTokens(token);
       } else {
