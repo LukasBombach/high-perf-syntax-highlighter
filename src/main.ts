@@ -127,7 +127,12 @@ function getTokens(sourcecode: string): { lines: Line[]; width: number; height: 
     });
   })(tokens);
 
-  const width = Math.max(...lines.map(row => row.reduce((acc, [length]) => acc + length, 0)));
+  let width = 0;
+  for (const row of lines) {
+    let w = 0;
+    for (const [length] of row) w += length;
+    if (w > width) width = w;
+  }
   const height = lines.length;
 
   return { lines, width, height };
