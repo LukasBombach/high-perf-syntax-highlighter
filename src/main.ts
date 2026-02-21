@@ -2,39 +2,47 @@ import Prism from "prismjs";
 import "prismjs/components/prism-javascript";
 import "./style.css";
 
-type Token = [length: number, color: string];
+type Rgba = [r: number, g: number, b: number, a: number];
+type Token = [length: number, color: Rgba];
 type Line = Token[];
 
-const theme = new Map([
-  ["atrule", "#c678dd"],
-  ["attr-value", "#98c379"],
-  ["boolean", "#d19a66"],
-  ["builtin", "#98c379"],
-  ["cdata", "#5C6370"],
-  ["char", "#98c379"],
-  ["comment", "#5C6370"],
-  ["constant", "#d19a66"],
-  ["deleted", "#d19a66"],
-  ["doctype", "#5C6370"],
-  ["entity", "#56b6c2"],
-  ["function", "#61afef"],
-  ["important", "#c678dd"],
-  ["inserted", "#98c379"],
-  ["keyword", "#c678dd"],
-  ["number", "#d19a66"],
-  ["operator", "#56b6c2"],
-  ["prolog", "#5C6370"],
-  ["property", "#d19a66"],
-  ["punctuation", "#abb2bf"],
-  ["regex", "#c678dd"],
-  ["selector", "#e06c75"],
-  ["string", "#98c379"],
-  ["symbol", "#d19a66"],
-  ["tag", "#e06c75"],
-  ["url", "#56b6c2"],
-  ["variable", "#c678dd"],
-  ["default", "#abb2bf"],
+function hex(color: string): Rgba {
+  const n = parseInt(color.slice(1), 16);
+  return [(n >> 16) & 0xff, (n >> 8) & 0xff, n & 0xff, 255];
+}
+
+const theme = new Map<string, Rgba>([
+  ["atrule", hex("#c678dd")],
+  ["attr-value", hex("#98c379")],
+  ["boolean", hex("#d19a66")],
+  ["builtin", hex("#98c379")],
+  ["cdata", hex("#5C6370")],
+  ["char", hex("#98c379")],
+  ["comment", hex("#5C6370")],
+  ["constant", hex("#d19a66")],
+  ["deleted", hex("#d19a66")],
+  ["doctype", hex("#5C6370")],
+  ["entity", hex("#56b6c2")],
+  ["function", hex("#61afef")],
+  ["important", hex("#c678dd")],
+  ["inserted", hex("#98c379")],
+  ["keyword", hex("#c678dd")],
+  ["number", hex("#d19a66")],
+  ["operator", hex("#56b6c2")],
+  ["prolog", hex("#5C6370")],
+  ["property", hex("#d19a66")],
+  ["punctuation", hex("#abb2bf")],
+  ["regex", hex("#c678dd")],
+  ["selector", hex("#e06c75")],
+  ["string", hex("#98c379")],
+  ["symbol", hex("#d19a66")],
+  ["tag", hex("#e06c75")],
+  ["url", hex("#56b6c2")],
+  ["variable", hex("#c678dd")],
+  ["default", hex("#abb2bf")],
 ]);
+
+const fallbackColor: Rgba = [255, 0, 255, 255];
 
 const img = new Image();
 const canvas = document.createElement("canvas");
@@ -68,14 +76,24 @@ function getBgImage(editor: HTMLTextAreaElement) {
   canvas.width = width;
   canvas.height = height;
 
+  const imageData = ctx.createImageData(width, height);
+  const buf = imageData.data;
+
   for (let y = 0; y < lines.length; ++y) {
     let x = 0;
-    for (const [length, color] of lines[y]) {
-      ctx.fillStyle = color;
-      ctx.fillRect(x, y, length, 1);
+    for (const [length, [r, g, b, a]] of lines[y]) {
+      for (let i = 0; i < length; ++i) {
+        const off = (y * width + x + i) * 4;
+        buf[off] = r;
+        buf[off + 1] = g;
+        buf[off + 2] = b;
+        buf[off + 3] = a;
+      }
       x += length;
     }
   }
+
+  ctx.putImageData(imageData, 0, 0);
 
   const image = canvas.toDataURL();
   const size = `${width}ch ${height * 1.5}em`;
@@ -104,7 +122,7 @@ function getTokens(sourcecode: string): { lines: Line[]; width: number; height: 
       } else if (Array.isArray(token)) {
         pushTokens(token);
       } else {
-        currentLine.push([token.length, theme.get(token.type) ?? "#FF00FF"]);
+        currentLine.push([token.length, theme.get(token.type) ?? fallbackColor]);
       }
     });
   })(tokens);
