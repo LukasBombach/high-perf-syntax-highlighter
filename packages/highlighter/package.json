@@ -1,0 +1,36 @@
+{
+  "name": "@highlighter/core",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./server": {
+      "import": "./dist/server.js",
+      "require": "./dist/server.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "server": ["./dist/server.d.ts"]
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup"
+  },
+  "dependencies": {
+    "prismjs": "1.29.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.0",
+    "@types/prismjs": "^1.26.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
+  }
+}

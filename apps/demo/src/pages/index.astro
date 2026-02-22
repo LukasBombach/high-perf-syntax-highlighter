@@ -1,0 +1,58 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Pixel Syntax Highlighter">
+  <h1>Pixel Syntax Highlighter</h1>
+  <p>
+    A syntax highlighter that renders code as a tiny pixel image — 1 pixel per
+    character — applied as a CSS background-image. Zero DOM nodes for
+    highlighting.
+  </p>
+
+  <div class="cards">
+    <a href="/ssr" class="card">
+      <h2>SSR Demo</h2>
+      <p>
+        Server-side rendered code blocks. The pixel image is generated at build
+        time and embedded as a data URL. Zero JavaScript in the browser.
+      </p>
+    </a>
+
+    <a href="/csr" class="card">
+      <h2>CSR Demo</h2>
+      <p>
+        Client-side interactive editor. Type code and see syntax highlighting
+        update in real time using the Canvas API.
+      </p>
+    </a>
+  </div>
+</Layout>
+
+<style>
+  .cards {
+    display: grid;
+    gap: 1rem;
+  }
+  .card {
+    display: block;
+    padding: 1.5rem;
+    border: 1px solid #313244;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s;
+  }
+  .card:hover {
+    border-color: #89b4fa;
+  }
+  .card h2 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: #cdd6f4;
+  }
+  .card p {
+    font-size: 0.9rem;
+    margin-bottom: 0;
+  }
+</style>

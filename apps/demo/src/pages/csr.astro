@@ -1,0 +1,77 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+const defaultCode = `function add(a, b) {
+  return a + b;
+}
+
+const x = add(1, 2);
+console.log(x);`;
+---
+
+<Layout title="CSR Demo">
+  <h1>Client-Side Rendering</h1>
+  <p>
+    Type in the editor below. Syntax highlighting updates in real time using the
+    Canvas API in the browser.
+  </p>
+
+  <textarea id="editor" class="editor">{defaultCode}</textarea>
+</Layout>
+
+<style>
+  .editor {
+    contain: strict;
+    will-change: background-image, background-size;
+    image-rendering: pixelated;
+    background-repeat: no-repeat;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    caret-color: white;
+    font-family: ui-monospace, "Cascadia Code", "Fira Code", Menlo, monospace;
+    font-size: 16px;
+    line-height: 1.5;
+    width: 100%;
+    min-height: 300px;
+    padding: 1.5rem;
+    border: 1px solid #313244;
+    border-radius: 0.5rem;
+    background-color: transparent;
+    resize: vertical;
+    outline: none;
+  }
+  .editor:focus {
+    border-color: #89b4fa;
+  }
+</style>
+
+<script>
+  import "prismjs";
+  import "prismjs/components/prism-javascript";
+  import { highlightCode } from "@highlighter/core";
+
+  const img = new Image();
+  const editor = document.querySelector<HTMLTextAreaElement>("#editor")!;
+
+  img.addEventListener("load", () => {
+    requestAnimationFrame(() => {
+      editor.style.backgroundImage = "url(" + img.src + ")";
+      editor.style.backgroundSize = img.dataset.size!;
+    });
+  });
+
+  function updateBgImage() {
+    const { dataUrl, backgroundSize } = highlightCode(editor.value, {
+      language: "javascript",
+    });
+    img.dataset.size = backgroundSize;
+    img.src = dataUrl;
+  }
+
+  updateBgImage();
+
+  editor.addEventListener("input", () => {
+    queueMicrotask(updateBgImage);
+  });
+</script>

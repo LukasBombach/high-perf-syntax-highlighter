@@ -1,0 +1,63 @@
+---
+import Layout from "../layouts/Layout.astro";
+import "prismjs";
+import "prismjs/components/prism-javascript";
+import { highlightCode } from "@highlighter/core/server";
+
+const code = `function fibonacci(n) {
+  if (n <= 1) return n;
+  return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+const results = [];
+for (let i = 0; i < 10; i++) {
+  results.push(fibonacci(i));
+}
+
+console.log(results);`;
+
+const { dataUrl, backgroundSize } = highlightCode(code, {
+  language: "javascript",
+});
+---
+
+<Layout title="SSR Demo">
+  <h1>Server-Side Rendering</h1>
+  <p>
+    This code block was rendered on the server. The syntax highlighting is a
+    pre-generated PNG data URL embedded in the HTML. View source or disable
+    JavaScript — it still works.
+  </p>
+
+  <pre
+    class="code-block"
+    style={`background-image:url(${dataUrl});background-size:${backgroundSize};`}
+  ><code>{code}</code></pre>
+
+  <p class="note">
+    Image size: {dataUrl.length} bytes. Zero JavaScript required.
+  </p>
+</Layout>
+
+<style>
+  .code-block {
+    background-repeat: no-repeat;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    image-rendering: pixelated;
+    font-family: ui-monospace, "Cascadia Code", "Fira Code", Menlo, monospace;
+    white-space: pre;
+    font-size: 16px;
+    line-height: 1.5;
+    padding: 1.5rem;
+    border: 1px solid #313244;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    margin-bottom: 1.5rem;
+  }
+  .note {
+    font-size: 0.85rem;
+    color: #6c7086;
+  }
+</style>
