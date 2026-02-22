@@ -1,0 +1,47 @@
+{
+  "name": "high-perf-syntax-highlighter",
+  "version": "0.1.0",
+  "description": "Syntax highlighting via pixel background images for textarea and code surfaces.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./core": {
+      "types": "./dist/core.d.ts",
+      "import": "./dist/core.js",
+      "require": "./dist/core.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "pnpm run clean && rolldown -c && tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "pnpm run typecheck",
+    "test": "vitest run",
+    "test:browser": "vitest run -c vitest.browser.config.ts",
+    "prepublishOnly": "pnpm run build && pnpm run test && pnpm run test:browser"
+  },
+  "dependencies": {
+    "prismjs": "1.29.0"
+  },
+  "devDependencies": {
+    "@types/prismjs": "1.26.0",
+    "@vitest/browser-playwright": "4.0.18",
+    "playwright": "1.57.0",
+    "rolldown": "1.0.0-rc.5",
+    "typescript": "5.9.3",
+    "vitest": "4.0.18"
+  }
+}

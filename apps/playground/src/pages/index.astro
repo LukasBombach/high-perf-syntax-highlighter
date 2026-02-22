@@ -1,0 +1,38 @@
+---
+import "../styles/global.css";
+
+const initialCode = `function add(a, b) {
+  return a + b;
+}
+
+const x = add(1, 2);
+console.log(x);`;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>High Perf Syntax Highlighter Playground</title>
+  </head>
+  <body class="bg-zinc-900 text-zinc-100 min-h-screen">
+    <main class="mx-auto max-w-5xl px-6 py-16">
+      <h1 class="text-3xl font-semibold tracking-tight">high-perf-syntax-highlighter</h1>
+      <p class="mt-3 text-zinc-300">
+        Edit code below. The textarea text is transparent and colored by a generated pixel background image.
+      </p>
+
+      <section class="mt-8 rounded-lg border border-zinc-700 bg-[#1f2430] p-5 shadow-2xl shadow-black/30">
+        <textarea
+          id="editor"
+          class="editor block h-80 w-full resize-y rounded border border-zinc-700 bg-transparent p-4 text-base leading-6 outline-none"
+        >{initialCode}</textarea>
+      </section>
+    </main>
+
+    <script type="module">
+      import { mountEditorDemo } from "../components/EditorDemo";
+      mountEditorDemo();
+    </script>
+  </body>
+</html>

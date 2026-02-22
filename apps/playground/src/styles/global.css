@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+.editor {
+  contain: strict;
+  will-change: background-image, background-size;
+  image-rendering: pixelated;
+  background-repeat: no-repeat;
+  background-clip: text;
+  color: transparent;
+  caret-color: #ffffff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
