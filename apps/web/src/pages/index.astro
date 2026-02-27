@@ -1,0 +1,29 @@
+---
+import "../styles/global.css";
+import editorScriptUrl from "../scripts/editor.ts?url";
+
+const initialCode = `function add(a, b) {
+  return a + b;
+}
+
+const x = add(1, 2);`;
+---
+
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>High Perf Syntax Highlighter</title>
+  </head>
+  <body class="bg-slate-800 text-slate-100">
+    <main class="mx-auto max-w-5xl p-8">
+      <h1 class="mb-4 text-2xl font-semibold">Highlighter Playground</h1>
+      <textarea
+        id="editor"
+        class="h-80 w-full rounded border border-indigo-500 bg-no-repeat bg-clip-text font-mono text-transparent caret-white [contain:strict] [image-rendering:pixelated] [will-change:background-image,background-size]"
+      >{initialCode}</textarea>
+    </main>
+
+    <script type="module" src={editorScriptUrl}></script>
+  </body>
+</html>

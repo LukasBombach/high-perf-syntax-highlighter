@@ -2,21 +2,9 @@
   "name": "high-perf-syntax-highlighter",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
+  "packageManager": "pnpm@10.11.0",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview"
-  },
-  "devDependencies": {
-    "@types/prismjs": "1.26.0",
-    "autoprefixer": "10.4.16",
-    "postcss": "8.4.30",
-    "tailwindcss": "3.3.3",
-    "typescript": "5.0.2",
-    "vite": "4.4.5"
-  },
-  "dependencies": {
-    "prismjs": "1.29.0"
+    "dev": "pnpm --filter web dev",
+    "build": "pnpm -r build"
   }
 }

@@ -43,12 +43,30 @@ const theme = new Map<string, Rgba>([
 ]);
 
 const fallbackColor: Rgba = [255, 0, 255, 255];
-const canvas = document.createElement("canvas");
-const ctx = canvas.getContext("2d")!;
 const javascript = Prism.languages["javascript"];
+let canvasContext: { canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D } | null = null;
+
+function getCanvasContext() {
+  if (canvasContext) return canvasContext;
+
+  if (typeof document === "undefined") {
+    throw new Error("getBackground can only run in a browser environment.");
+  }
+
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+
+  if (!ctx) {
+    throw new Error("Could not create 2D canvas context.");
+  }
+
+  canvasContext = { canvas, ctx };
+  return canvasContext;
+}
 
 export function getBackground(code: string): BackgroundResult {
   const { lines, width, height } = getTokens(code);
+  const { canvas, ctx } = getCanvasContext();
 
   if (canvas.width !== width) canvas.width = width;
   if (canvas.height !== height) canvas.height = height;

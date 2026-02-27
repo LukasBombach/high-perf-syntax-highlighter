@@ -1,0 +1,26 @@
+{
+  "name": "highlighter-core",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json"
+  },
+  "dependencies": {
+    "prismjs": "1.29.0"
+  },
+  "devDependencies": {
+    "@types/prismjs": "1.26.0",
+    "typescript": "5.0.2"
+  }
+}
