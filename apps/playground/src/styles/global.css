@@ -11,8 +11,19 @@
   will-change: background-image, background-size;
   image-rendering: pixelated;
   background-repeat: no-repeat;
-  background-clip: text;
-  color: transparent;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0;
+  tab-size: 2;
+  font-variant-ligatures: none;
+  color: #e5e7eb;
   caret-color: #ffffff;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-family: "SF Mono", "Menlo", "Monaco", "Consolas", "Liberation Mono", "Courier New", monospace;
+}
+
+.editor[data-hpsh-ready="true"] {
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
 }

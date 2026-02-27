@@ -1,5 +1,4 @@
 import Prism from "prismjs";
-import "prismjs/components/prism-javascript";
 
 export type Rgba = [r: number, g: number, b: number, a: number];
 export type Theme = Record<string, Rgba>;
@@ -109,7 +108,8 @@ export function tokenizeToLines(code: string, options: TokenizeOptions = {}): To
         return;
       }
 
-      currentLine.push([token.length, theme[token.type] ?? fallbackColor]);
+      const length = getTokenLength(token.content as Prism.TokenStream);
+      currentLine.push([length, theme[token.type] ?? fallbackColor]);
     });
   };
 
@@ -202,4 +202,24 @@ export function renderToDataUrl(input: RenderInput): RenderOutput {
 function hex(color: string): Rgba {
   const n = Number.parseInt(color.slice(1), 16);
   return [(n >> 16) & 0xff, (n >> 8) & 0xff, n & 0xff, 255];
+}
+
+function getTokenLength(stream: Prism.TokenStream): number {
+  if (typeof stream === "string") {
+    return stream.length;
+  }
+
+  if (Array.isArray(stream)) {
+    let total = 0;
+    for (const item of stream) {
+      if (typeof item === "string") {
+        total += item.length;
+      } else {
+        total += getTokenLength(item.content as Prism.TokenStream);
+      }
+    }
+    return total;
+  }
+
+  return getTokenLength(stream.content as Prism.TokenStream);
 }

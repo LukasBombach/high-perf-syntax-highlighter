@@ -33,6 +33,7 @@ export function attachTextarea(textarea: HTMLTextAreaElement, options: AttachOpt
       }
       textarea.style.backgroundImage = `url(${img.src})`;
       textarea.style.backgroundSize = img.dataset.size ?? "";
+      textarea.dataset.hpshReady = "true";
     });
   };
 
@@ -86,6 +87,7 @@ export function attachTextarea(textarea: HTMLTextAreaElement, options: AttachOpt
       disposed = true;
       textarea.removeEventListener("input", handleInput);
       img.removeEventListener("load", applyBackground);
+      delete textarea.dataset.hpshReady;
     },
     update
   };
