@@ -17,6 +17,7 @@
     "build": "tsc -p tsconfig.build.json"
   },
   "dependencies": {
+    "fast-png": "^7.0.1",
     "prismjs": "1.29.0"
   },
   "devDependencies": {

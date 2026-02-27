@@ -2,7 +2,7 @@
 import "../styles/global.css";
 import editorScriptUrl from "../scripts/editor.ts?url";
 
-const initialCode = `function add(a, b) {
+const code = `function add(a, b) {
   return a + b;
 }
 
@@ -17,11 +17,12 @@ const x = add(1, 2);`;
   </head>
   <body class="bg-slate-800 text-slate-100">
     <main class="mx-auto max-w-5xl p-8">
-      <h1 class="mb-4 text-2xl font-semibold">Highlighter Playground</h1>
+      <h1 class="mb-2 text-2xl font-semibold">Highlighter Playground</h1>
+      <a class="mb-4 inline-block text-indigo-300 underline" href="/ssr">SSR-Demo ansehen</a>
       <textarea
         id="editor"
-        class="h-80 w-full rounded border border-indigo-500 bg-no-repeat bg-clip-text font-mono text-transparent caret-white [contain:strict] [image-rendering:pixelated] [will-change:background-image,background-size]"
-      >{initialCode}</textarea>
+        class="h-80 w-full rounded border border-indigo-500 bg-no-repeat bg-clip-text font-mono text-transparent caret-white contain-strict [image-rendering:pixelated] will-change-[background-image,background-size]"
+      >{code}</textarea>
     </main>
 
     <script type="module" src={editorScriptUrl}></script>

@@ -1,3 +1,4 @@
+import { encode } from "fast-png";
 import Prism from "prismjs";
 import "prismjs/components/prism-javascript";
 
@@ -95,6 +96,31 @@ export function getBackground(code: string): BackgroundResult {
   return { image, size };
 }
 
+export function getBackgroundSSR(code: string): BackgroundResult {
+  const { lines, width, height } = getTokens(code);
+  const rasterWidth = Math.max(width, 1);
+  const rasterHeight = Math.max(height, 1);
+  const buf = new Uint8Array(rasterWidth * rasterHeight * 3);
+
+  for (let y = 0; y < lines.length; ++y) {
+    let x = 0;
+    for (const [length, [r, g, b]] of lines[y]) {
+      for (let i = 0; i < length; ++i) {
+        const off = (y * rasterWidth + x + i) * 3;
+        buf[off] = r;
+        buf[off + 1] = g;
+        buf[off + 2] = b;
+      }
+      x += length;
+    }
+  }
+
+  const png = encode({ width: rasterWidth, height: rasterHeight, data: buf, channels: 3, depth: 8 });
+  const image = `data:image/png;base64,${bytesToBase64(png)}`;
+  const size = `${width}ch ${height * 1.5}em`;
+  return { image, size };
+}
+
 function getTokens(sourcecode: string): { lines: Line[]; width: number; height: number } {
   const tokens = Prism.tokenize(sourcecode, javascript);
   const lines: Line[] = [];
@@ -129,4 +155,23 @@ function getTokens(sourcecode: string): { lines: Line[]; width: number; height: 
   }
 
   return { lines, width, height: lines.length };
+}
+
+function bytesToBase64(bytes: Uint8Array): string {
+  if (typeof btoa === "function") {
+    let binary = "";
+    const chunkSize = 0x8000;
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+      const chunk = bytes.subarray(i, i + chunkSize);
+      binary += String.fromCharCode(...chunk);
+    }
+    return btoa(binary);
+  }
+
+  const maybeBuffer = (globalThis as { Buffer?: { from(data: Uint8Array): { toString(enc: string): string } } }).Buffer;
+  if (maybeBuffer) {
+    return maybeBuffer.from(bytes).toString("base64");
+  }
+
+  throw new Error("No base64 encoder available in this environment.");
 }
