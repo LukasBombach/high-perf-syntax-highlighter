@@ -2,7 +2,7 @@
   "name": "high-perf-syntax-highlighter",
   "private": true,
   "version": "0.0.0",
-  "packageManager": "pnpm@10.11.0",
+  "packageManager": "pnpm@10.30.3",
   "scripts": {
     "dev": "pnpm --filter web dev",
     "build": "pnpm -r build"
