@@ -1,6 +1,6 @@
 import { encode } from "fast-png";
 import { buildRaster } from "./core";
-import type { BackgroundResult, HighlighterOptions } from "./types";
+import type { BackgroundResult, HighlighterOptions } from "./core";
 
 function bytesToBase64(bytes: Uint8Array): string {
   if (typeof btoa === "function") {

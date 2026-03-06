@@ -1,5 +1,5 @@
 import { buildRaster } from "./core";
-import type { BackgroundResult, HighlighterOptions } from "./types";
+import type { BackgroundResult, HighlighterOptions } from "./core";
 
 let canvasContext: { canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D } | null = null;
 
