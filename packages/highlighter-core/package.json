@@ -8,6 +8,22 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./browser": {
+      "types": "./dist/browser.d.ts",
+      "import": "./dist/browser.js"
+    },
+    "./server": {
+      "types": "./dist/server.d.ts",
+      "import": "./dist/server.js"
+    },
+    "./theme/*": {
+      "types": "./dist/theme/*.d.ts",
+      "import": "./dist/theme/*.js"
+    },
+    "./language/*": {
+      "types": "./dist/language/*.d.ts",
+      "import": "./dist/language/*.js"
     }
   },
   "files": [

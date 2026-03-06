@@ -33,6 +33,22 @@ Input Event
           → swap background-image on textarea
 ```
 
+## Modulare API (Bundle-Optimierung)
+
+`highlighter-core` ist in Runtime, Sprache und Theme aufgeteilt, damit nur benoetigte Teile gebundelt werden:
+
+```ts
+import getBackgroundBrowser from "highlighter-core/browser";
+import getBackgroundServer from "highlighter-core/server";
+import javascript from "highlighter-core/language/javascript";
+import oneDark from "highlighter-core/theme/one-dark";
+
+const options = { language: javascript, theme: oneDark };
+
+const browserResult = getBackgroundBrowser(code, options);
+const serverResult = getBackgroundServer(code, options);
+```
+
 ## Design Decisions
 
 - **No overlay `<div>`, no virtual DOM** — just a textarea with a background image

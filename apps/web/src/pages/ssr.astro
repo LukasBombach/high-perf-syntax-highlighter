@@ -1,6 +1,8 @@
 ---
 import "../styles/global.css";
-import { getBackgroundSSR } from "highlighter-core";
+import getBackground from "highlighter-core/server";
+import javascript from "highlighter-core/language/javascript";
+import oneDark from "highlighter-core/theme/one-dark";
 
 const code = `function add(a, b) {
   return a + b;
@@ -8,7 +10,10 @@ const code = `function add(a, b) {
 
 const x = add(1, 2);`;
 
-const { image, size } = getBackgroundSSR(code);
+const { image, size } = getBackground(code, {
+  language: javascript,
+  theme: oneDark,
+});
 ---
 
 <html lang="de">

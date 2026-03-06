@@ -1,4 +1,6 @@
-import { getBackground } from "highlighter-core";
+import getBackground from "highlighter-core/browser";
+import javascript from "highlighter-core/language/javascript";
+import oneDark from "highlighter-core/theme/one-dark";
 
 const img = new Image();
 const editor = document.querySelector("#editor");
@@ -15,7 +17,10 @@ img.addEventListener("load", () => {
 });
 
 const updateBgImage = () => {
-  const { image, size } = getBackground(editor.value);
+  const { image, size } = getBackground(editor.value, {
+    language: javascript,
+    theme: oneDark,
+  });
   img.dataset.size = size;
   img.src = image;
 };
