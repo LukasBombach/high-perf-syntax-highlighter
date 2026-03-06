@@ -1,5 +1,6 @@
 import Prism from "prismjs";
-import type { HighlighterOptions, Line, Rgba } from "./types";
+
+import type { HighlighterOptions, Line, Rgba, Theme, ThemeDefinition } from "./types";
 
 const FALLBACK_COLOR: Rgba = [255, 0, 255, 255];
 
@@ -64,4 +65,24 @@ export function buildRaster(code: string, options: HighlighterOptions): Raster {
     height: lines.length,
     size: `${width}ch ${lines.length * lineHeight}em`,
   };
+}
+
+function parseHex(color: string): Rgba {
+  const normalized = color.trim();
+  if (!/^#[0-9a-fA-F]{6}$/.test(normalized)) {
+    throw new Error(`Invalid hex color "${color}". Expected format "#rrggbb".`);
+  }
+
+  const n = parseInt(normalized.slice(1), 16);
+  return [(n >> 16) & 0xff, (n >> 8) & 0xff, n & 0xff, 255];
+}
+
+export function createTheme(themeDefinition: ThemeDefinition): Theme {
+  const entries: Array<[string, Rgba]> = [];
+
+  for (const [tokenType, color] of Object.entries(themeDefinition)) {
+    entries.push([tokenType, typeof color === "string" ? parseHex(color) : color]);
+  }
+
+  return new Map(entries);
 }

@@ -1,4 +1,4 @@
-import { createTheme } from "./create-theme";
+import { createTheme } from "../core";
 
 const oneDark = createTheme({
   atrule: "#c678dd",
